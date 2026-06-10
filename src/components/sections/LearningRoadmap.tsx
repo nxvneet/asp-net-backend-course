@@ -246,10 +246,10 @@ export function LearningRoadmap() {
       </div>
 
       <Sheet open={!!selectedModule} onOpenChange={(open) => !open && setSelectedModule(null)}>
-        <SheetContent className="w-full sm:max-w-xl overflow-y-auto">
+        <SheetContent side="bottom" className="w-full max-w-none sm:max-w-none h-[100dvh] overflow-y-auto p-0">
           {selectedModule && (
-            <>
-              <SheetHeader className="mb-6">
+            <div className="max-w-4xl mx-auto p-6 md:p-12 md:py-16 w-full">
+              <SheetHeader className="mb-8 mt-4 md:mt-0">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant={selectedModule.status === "completed" ? "default" : selectedModule.status === "in-progress" ? "secondary" : "outline"}
                       className={selectedModule.status === "completed" ? "bg-success hover:bg-success/90" : ""}
@@ -351,7 +351,7 @@ export function LearningRoadmap() {
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </SheetContent>
       </Sheet>
