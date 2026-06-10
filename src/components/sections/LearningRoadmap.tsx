@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { CheckCircle2, Circle, Lock, PlayCircle, BookOpen, Code, Lightbulb } from "lucide-react"
+import { CheckCircle2, Circle, Lock, BookOpen, Code, Lightbulb } from "lucide-react"
 import {
   ClientServerVisual,
   HttpFundamentalsVisual,
