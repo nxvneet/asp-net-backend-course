@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { CheckCircle2, Circle, Lock, BookOpen, Code, Lightbulb } from "lucide-react"
+import { CheckCircle2, Circle, Lock, BookOpen, Code, Lightbulb, BrainCircuit, Target, MessageSquare } from "lucide-react"
 import {
   ClientServerVisual,
   HttpFundamentalsVisual,
@@ -35,12 +35,16 @@ interface Module {
   description: string
   level: ModuleLevel
   content: {
-    videoDuration: string
     readingTime: string
     overview: string
     keyTakeaways: string[]
     codeSnippet?: string
     visual: React.ReactNode
+    interviewDeepDive: {
+      underTheHood: string
+      interviewQuestion: string
+      seniorAnswer: string
+    }
   }
 }
 
@@ -52,15 +56,19 @@ const modules: Module[] = [
     description: "Understand the fundamentals of how clients and servers communicate.", 
     level: "Beginner",
     content: {
-      videoDuration: "10 mins",
       readingTime: "5 mins",
-      overview: "The client-server model is a distributed application structure that partitions tasks or workloads between the providers of a resource or service, called servers, and service requesters, called clients. In web development, your React app is the client, and ASP.NET Core is the server.",
+      overview: "The client-server model partitions workloads between resource providers (servers) and service requesters (clients). In modern web apps, the React frontend acts as the client requesting data, while the ASP.NET Core backend processes business logic and returns JSON.",
       keyTakeaways: [
         "Clients initiate communication by sending requests.",
         "Servers wait for requests, process them, and return responses.",
         "This separation of concerns allows the frontend and backend to scale and evolve independently."
       ],
-      visual: <ClientServerVisual />
+      visual: <ClientServerVisual />,
+      interviewDeepDive: {
+        underTheHood: "In an enterprise architecture, 'Client-Server' isn't just a 1-to-1 relationship. The React client often talks to a Reverse Proxy or API Gateway (like Nginx or Azure API Management), which then load-balances requests across multiple stateless ASP.NET Core instances. Keeping the backend stateless is crucial for horizontal scaling.",
+        interviewQuestion: "What is the difference between stateful and stateless architectures, and why do we prefer stateless for REST APIs?",
+        seniorAnswer: "Stateful architectures store client session data on the server, meaning subsequent requests from a client must be routed to the exact same server (sticky sessions), which hinders scaling. Stateless architectures, like REST, require the client to send all necessary context (like a JWT token) with every request. This allows any ASP.NET Core instance behind a load balancer to handle the request independently, enabling seamless horizontal scaling and better fault tolerance."
+      }
     }
   },
   { 
@@ -70,15 +78,19 @@ const modules: Module[] = [
     description: "Deep dive into verbs, status codes, and headers.", 
     level: "Beginner",
     content: {
-      videoDuration: "15 mins",
       readingTime: "8 mins",
-      overview: "HTTP (Hypertext Transfer Protocol) is the foundation of data communication for the World Wide Web. Understanding its core concepts is crucial for integrating frontends and backends.",
+      overview: "HTTP is the foundation of web communication. A thorough understanding of HTTP methods (verbs) for intent, status codes for results, and headers for metadata (like Authentication or Content-Type) is essential for integrating systems.",
       keyTakeaways: [
-        "Verbs (GET, POST, PUT, DELETE) define the action to be performed.",
-        "Status Codes (200, 400, 404, 500) indicate the result of the request.",
-        "Headers provide metadata about the request or response (e.g., Content-Type, Authorization)."
+        "Verbs (GET, POST, PUT, DELETE) define the action.",
+        "Status Codes (200, 400, 404, 500) indicate the outcome.",
+        "Headers provide metadata (e.g., Content-Type, Authorization)."
       ],
-      visual: <HttpFundamentalsVisual />
+      visual: <HttpFundamentalsVisual />,
+      interviewDeepDive: {
+        underTheHood: "While HTTP/1.1 relies on a text-based protocol that suffers from Head-of-Line blocking (where one slow request blocks others on the same connection), modern ASP.NET Core apps over HTTPS automatically use HTTP/2. HTTP/2 uses a binary framing layer to multiplex multiple requests over a single TCP connection, drastically improving performance for React apps fetching multiple resources.",
+        interviewQuestion: "How does CORS work, and why is it necessary when connecting a React app to an ASP.NET API?",
+        seniorAnswer: "Cross-Origin Resource Sharing (CORS) is a security mechanism enforced by the browser, not the API. If a React app running on 'localhost:3000' makes an AJAX request to an API on 'localhost:5000', the browser blocks it by default to prevent cross-site request forgery. To fix this, the ASP.NET API must explicitly send an 'Access-Control-Allow-Origin' header. For complex requests (like POST with JSON), the browser first sends an HTTP OPTIONS 'preflight' request to verify the server permits the actual request."
+      }
     }
   },
   { 
@@ -88,15 +100,19 @@ const modules: Module[] = [
     description: "Design principles and conventions of RESTful services.", 
     level: "Beginner",
     content: {
-      videoDuration: "20 mins",
       readingTime: "10 mins",
-      overview: "Representational State Transfer (REST) is a software architectural style that defines a set of constraints to be used for creating Web services. RESTful APIs allow systems to communicate over HTTP in a standard way.",
+      overview: "Representational State Transfer (REST) defines architectural constraints for creating scalable web services. It emphasizes resource-based URLs, stateless communication, and the standard use of HTTP methods to perform CRUD operations.",
       keyTakeaways: [
         "Stateless interactions: Each request contains all info needed.",
-        "Resource-based URLs (e.g., /api/users instead of /api/getUsers).",
-        "Standard use of HTTP methods for CRUD operations."
+        "Resource-based URLs (e.g., /api/users).",
+        "Standard use of HTTP methods mapping to CRUD."
       ],
-      visual: <RestApiVisual />
+      visual: <RestApiVisual />,
+      interviewDeepDive: {
+        underTheHood: "True REST (Richardson Maturity Model Level 3) involves HATEOAS (Hypermedia as the Engine of Application State), where the API returns navigational links alongside data. However, most modern 'REST' APIs are only Level 2, meaning they use verbs and resource URIs correctly but leave application state logic (routing) to the React frontend.",
+        interviewQuestion: "What is the difference between PUT and PATCH methods?",
+        seniorAnswer: "PUT is idempotent and is used to replace an entire resource. If a field is omitted in a PUT request, it should theoretically be set to null or its default. PATCH is used for partial updates, applying only the changes specified in the payload (often using standard formats like JSON Patch). In high-performance ASP.NET APIs, PATCH is preferred for large objects to avoid sending unnecessary data over the wire."
+      }
     }
   },
   { 
@@ -106,16 +122,20 @@ const modules: Module[] = [
     description: "Building robust backend endpoints using controllers and Minimal APIs.", 
     level: "Intermediate",
     content: {
-      videoDuration: "25 mins",
       readingTime: "12 mins",
-      overview: "ASP.NET Core provides powerful tools for building web APIs. You can use MVC-style Controllers or the newer, lightweight Minimal APIs to handle incoming HTTP requests.",
+      overview: "ASP.NET Core provides powerful tools for building APIs. You can use MVC-style Controllers for structured routing, or the newer Minimal APIs for low-ceremony, high-performance endpoints. Both heavily leverage built-in Dependency Injection and Model Binding.",
       keyTakeaways: [
-        "Controllers group related endpoints and use attribute routing.",
-        "Dependency Injection is built-in and heavily used.",
-        "Model binding automatically maps HTTP request data to C# objects."
+        "Controllers group related endpoints with attribute routing.",
+        "Dependency Injection manages service lifecycles (Transient, Scoped, Singleton).",
+        "Model binding maps HTTP request data to C# objects."
       ],
-      codeSnippet: `[ApiController]\n[Route("api/[controller]")]\npublic class UsersController : ControllerBase {\n    [HttpGet]\n    public IActionResult Get() => Ok(new { Name = "John" });\n}`,
-      visual: <AspNetWebApiVisual />
+      codeSnippet: `[ApiController]\n[Route("api/[controller]")]\npublic class UsersController : ControllerBase {\n    private readonly IUserService _userService;\n    public UsersController(IUserService userService) => _userService = userService;\n\n    [HttpGet]\n    public async Task<IActionResult> Get() => Ok(await _userService.GetAllAsync());\n}`,
+      visual: <AspNetWebApiVisual />,
+      interviewDeepDive: {
+        underTheHood: "ASP.NET Core uses the Kestrel web server. Unlike Node.js's single-threaded Event Loop, Kestrel uses a multi-threaded asynchronous ThreadPool. When an endpoint performs I/O (like a DB query), using `async/await` yields the thread back to the pool to serve other requests, preventing thread starvation and allowing massive concurrency.",
+        interviewQuestion: "Explain the difference between Transient, Scoped, and Singleton service lifetimes in ASP.NET Core DI.",
+        seniorAnswer: "Transient services are created every single time they are requested; they are best for lightweight, stateless services. Scoped services are created once per HTTP request; they are ideal for Entity Framework DbContexts or services maintaining state during a single transaction. Singleton services are created the first time they are requested and shared across all requests; they must be thread-safe and are used for caching or configuration. Injecting a Scoped service into a Singleton is a dangerous anti-pattern that causes 'captive dependencies'."
+      }
     }
   },
   { 
@@ -125,24 +145,28 @@ const modules: Module[] = [
     description: "Using fetch() and axios in React to consume your endpoints.", 
     level: "Intermediate",
     content: {
-      videoDuration: "18 mins",
       readingTime: "10 mins",
-      overview: "To integrate your React app with ASP.NET, you need to make HTTP requests from the browser. 'fetch' is the native browser API, while 'axios' is a popular third-party library that simplifies request configuration and error handling.",
+      overview: "Integrating React requires making HTTP requests from the browser. 'fetch' is the native API, while 'axios' simplifies request configuration, automatic JSON parsing, and provides powerful interceptors for global request/response handling.",
       keyTakeaways: [
         "Always handle loading and error states in React.",
         "Use async/await for cleaner asynchronous code.",
         "Axios interceptors are great for attaching auth tokens globally."
       ],
       codeSnippet: `const fetchUsers = async () => {\n  try {\n    const response = await axios.get('/api/users');\n    setUsers(response.data);\n  } catch (error) {\n    console.error(error);\n  }\n};`,
-      visual: <FrontendApiVisual />
+      visual: <FrontendApiVisual />,
+      interviewDeepDive: {
+        underTheHood: "When making API calls inside React's `useEffect`, developers often encounter 'race conditions' if the component re-renders or unmounts before the promise resolves. This can lead to setting state on an unmounted component or rendering stale data if a later request finishes before an earlier one.",
+        interviewQuestion: "How do you handle race conditions and unmounted component errors when fetching data in React?",
+        seniorAnswer: "To prevent state updates on unmounted components and avoid race conditions, I use an `AbortController` combined with the `useEffect` cleanup function. By passing the `signal` to the `fetch` or `axios` call, I can cancel the in-flight HTTP request if the component unmounts or if the dependency array changes. Alternatively, in modern React, using a data-fetching library like TanStack Query (React Query) abstracts away these complexities, handling cancellation, caching, and background refetching automatically."
+      }
     }
   },
-  { id: 6, title: "Authentication & Authorization", status: "locked", description: "Implementing JWTs, identity, and protecting routes.", level: "Advanced", content: { videoDuration: "30 mins", readingTime: "15 mins", overview: "Security is paramount. Learn how to issue JSON Web Tokens (JWT) in ASP.NET Core and securely store and attach them to requests in React.", keyTakeaways: ["JWTs contain claims about the user.", "Use [Authorize] attributes in ASP.NET Core.", "Store tokens securely (HTTP-only cookies preferred)."], visual: <AuthVisual /> } },
-  { id: 7, title: "Error Handling", status: "locked", description: "Global exception handlers, ProblemDetails, and friendly UI messages.", level: "Intermediate", content: { videoDuration: "15 mins", readingTime: "8 mins", overview: "When things go wrong, the API must return structured errors. ASP.NET Core's ProblemDetails is the standard way to return HTTP errors.", keyTakeaways: ["Use global exception middleware.", "Return standard ProblemDetails JSON.", "Parse error messages in React to show user-friendly toasts."], visual: <ErrorHandlingVisual /> } },
-  { id: 8, title: "State Management", status: "locked", description: "Syncing backend data with React Context and Redux/Zustand.", level: "Advanced", content: { videoDuration: "20 mins", readingTime: "12 mins", overview: "Once data is fetched from the API, it needs to be stored and managed in the React application.", keyTakeaways: ["Use React Query or SWR for server state.", "Use Zustand or Redux for complex client state.", "Keep client state synchronized with the backend."], visual: <StateManagementVisual /> } },
-  { id: 9, title: "File Uploads", status: "locked", description: "Handling multipart/form-data from React to ASP.NET controllers.", level: "Advanced", content: { videoDuration: "25 mins", readingTime: "10 mins", overview: "Uploading files requires specific HTTP headers and processing on both sides.", keyTakeaways: ["Use FormData object in React.", "Set Content-Type to multipart/form-data.", "Use IFormFile in ASP.NET Core controller actions."], visual: <FileUploadVisual /> } },
-  { id: 10, title: "Real-World Project", status: "locked", description: "Putting it all together: Building a full Employee Management System.", level: "Advanced", content: { videoDuration: "45 mins", readingTime: "20 mins", overview: "Apply all the concepts learned in a comprehensive project.", keyTakeaways: ["Architecture planning.", "End-to-end integration.", "Deployment considerations."], visual: <RealWorldProjectVisual /> } },
-  { id: 11, title: "Interview Questions", status: "locked", description: "Commonly asked full-stack integration questions.", level: "All Levels", content: { videoDuration: "0 mins", readingTime: "30 mins", overview: "Review this module to prepare for your next technical interview.", keyTakeaways: ["Understand the 'Why' behind architectural choices.", "Be ready to explain CORS and Auth flows.", "Practice writing clean controller and component code."], visual: <InterviewPrepVisual /> } },
+  { id: 6, title: "Authentication & Authorization", status: "locked", description: "Implementing JWTs, identity, and protecting routes.", level: "Advanced", content: { readingTime: "15 mins", overview: "Security is paramount. Learn how to issue JSON Web Tokens (JWT) in ASP.NET Core and securely store and attach them to requests in React.", keyTakeaways: ["JWTs contain claims about the user.", "Use [Authorize] attributes in ASP.NET Core.", "Store tokens securely (HTTP-only cookies preferred)."], visual: <AuthVisual />, interviewDeepDive: { underTheHood: "A JWT is just Base64-encoded JSON; anyone can decode and read the payload. The security comes from the Signature. ASP.NET Core verifies the signature using a secret key (symmetric HS256) or public/private key pair (asymmetric RS256) to ensure the payload hasn't been tampered with.", interviewQuestion: "Where is the safest place to store a JWT in a React application?", seniorAnswer: "Storing a JWT in `localStorage` or `sessionStorage` exposes it to Cross-Site Scripting (XSS) attacks, where malicious JavaScript can steal the token. The most secure approach is the 'Backend-for-Frontend' (BFF) pattern, where the token is never exposed to JavaScript. Instead, the backend sends the token via an `HttpOnly`, `Secure`, `SameSite=Strict` cookie. The browser automatically includes this cookie in subsequent API requests, protecting against XSS, while `SameSite` mitigates Cross-Site Request Forgery (CSRF)." } } },
+  { id: 7, title: "Error Handling", status: "locked", description: "Global exception handlers, ProblemDetails, and friendly UI messages.", level: "Intermediate", content: { readingTime: "8 mins", overview: "When things go wrong, the API must return structured errors. ASP.NET Core's ProblemDetails is the standard way to return HTTP errors.", keyTakeaways: ["Use global exception middleware.", "Return standard ProblemDetails JSON.", "Parse error messages in React to show user-friendly toasts."], visual: <ErrorHandlingVisual />, interviewDeepDive: { underTheHood: "In ASP.NET Core, an unhandled exception results in a 500 status code and potentially leaks sensitive stack traces. Using a Global Exception Middleware or the new `IExceptionHandler` interface ensures that all errors are intercepted, logged securely on the server, and mapped to a standardized RFC 7807 `ProblemDetails` response.", interviewQuestion: "How do you handle API validation errors on the frontend?", seniorAnswer: "When ASP.NET Core's model validation fails, it automatically returns a 400 Bad Request with a `ValidationProblemDetails` object containing a dictionary of field errors. In React, I intercept the 400 response in an Axios `catch` block, extract the `errors` dictionary, and map those error messages directly to the corresponding UI form inputs using a library like React Hook Form, providing immediate, contextual feedback to the user." } } },
+  { id: 8, title: "State Management", status: "locked", description: "Syncing backend data with React Context and Redux/Zustand.", level: "Advanced", content: { readingTime: "12 mins", overview: "Once data is fetched from the API, it needs to be stored and managed in the React application.", keyTakeaways: ["Use React Query or SWR for server state.", "Use Zustand or Redux for complex client state.", "Keep client state synchronized with the backend."], visual: <StateManagementVisual />, interviewDeepDive: { underTheHood: "React Context is great for dependency injection but terrible for high-frequency state updates, as any change forces all consuming components to re-render. Libraries like Zustand or Redux solve this by subscribing components only to specific slices of the state tree.", interviewQuestion: "What is the difference between Client State and Server State, and how does it impact architecture?", seniorAnswer: "Client State represents UI-specific data (like modals being open, theme selection, or form drafts). Server State represents data persisted in the ASP.NET database. Historically, developers mixed both in Redux, leading to massive boilerplate. Today, the best practice is to separate them: use TanStack Query to manage Server State (handling caching, deduplication, and polling), and use a lightweight library like Zustand solely for transient Client State. This drastically simplifies the codebase." } } },
+  { id: 9, title: "File Uploads", status: "locked", description: "Handling multipart/form-data from React to ASP.NET controllers.", level: "Advanced", content: { readingTime: "10 mins", overview: "Uploading files requires specific HTTP headers and processing on both sides.", keyTakeaways: ["Use FormData object in React.", "Set Content-Type to multipart/form-data.", "Use IFormFile in ASP.NET Core controller actions."], visual: <FileUploadVisual />, interviewDeepDive: { underTheHood: "When sending JSON, the payload is parsed entirely into memory. For large files, doing this would crash the ASP.NET Core server. Using `multipart/form-data` allows the server to stream the incoming file directly to disk or cloud storage (like Azure Blob Storage) using `IFormFile`, keeping memory consumption low.", interviewQuestion: "How do you safely process user-uploaded files in an ASP.NET Core API?", seniorAnswer: "Processing file uploads is a huge security risk. First, never trust the client-provided file name or `Content-Type`; always validate the 'magic bytes' (file signature) to ensure an uploaded image is actually an image and not an executable script. Second, enforce strict file size limits using `[RequestSizeLimit]`. Finally, store the files in a completely separate domain or storage bucket (like AWS S3) rather than the local web server filesystem, preventing directory traversal and execution attacks." } } },
+  { id: 10, title: "Real-World Project", status: "locked", description: "Putting it all together: Building a full Employee Management System.", level: "Advanced", content: { readingTime: "20 mins", overview: "Apply all the concepts learned in a comprehensive project.", keyTakeaways: ["Architecture planning.", "End-to-end integration.", "Deployment considerations."], visual: <RealWorldProjectVisual />, interviewDeepDive: { underTheHood: "A production-ready architecture rarely involves the React app hitting the Database directly. It typically flows: React App -> Content Delivery Network (CDN) -> API Gateway -> Load Balancer -> ASP.NET Core Microservices -> Distributed Cache (Redis) -> Primary SQL Database.", interviewQuestion: "If an API request takes 5 seconds to generate a complex report, how do you prevent the React UI from timing out or freezing?", seniorAnswer: "We shouldn't keep the HTTP connection open for 5 seconds. Instead, we use the Asynchronous Request-Reply pattern. The React app POSTs a request to generate the report. The ASP.NET API immediately returns a '202 Accepted' with a tracking ID and queues a background job (using Hangfire or Azure Service Bus). The React app then either polls a status endpoint using that ID, or listens for a SignalR WebSocket event. Once the background job finishes, the UI is notified to download the completed report." } } },
+  { id: 11, title: "Interview Questions", status: "locked", description: "Commonly asked full-stack integration questions.", level: "All Levels", content: { readingTime: "30 mins", overview: "Review this module to prepare for your next technical interview.", keyTakeaways: ["Understand the 'Why' behind architectural choices.", "Be ready to explain CORS and Auth flows.", "Practice writing clean controller and component code."], visual: <InterviewPrepVisual />, interviewDeepDive: { underTheHood: "Interviews for full-stack roles are shifting away from basic syntax questions and moving heavily toward System Design and architectural trade-offs. Interviewers want to know if you can identify bottlenecks, secure the application against OWASP top 10 vulnerabilities, and structure code for long-term maintainability.", interviewQuestion: "How would you optimize a React app that fetches 10,000 records from an ASP.NET API?", seniorAnswer: "Fetching 10,000 records at once crushes both the backend database and the frontend browser memory. I would implement Server-Side Pagination and Filtering. The ASP.NET API would accept `pageNumber` and `pageSize` parameters, using Entity Framework's `.Skip()` and `.Take()` to only query the required slice from the database. On the React side, I would implement an Infinite Scroll or Pagination component using React Query, ensuring the DOM only renders a small virtualized list (using a library like `react-window`) to maintain 60fps performance." } } },
 ]
 
 export function LearningRoadmap() {
@@ -240,7 +264,7 @@ export function LearningRoadmap() {
                 </SheetDescription>
               </SheetHeader>
 
-              <div className="space-y-6">
+              <div className="space-y-8 pb-10">
                 <div className="flex flex-wrap gap-3 mb-2">
                   <Badge variant="outline" className="flex items-center gap-1.5 font-medium text-foreground py-1 px-3 border-primary/20 bg-primary/5 cursor-default">
                     <BookOpen className="w-4 h-4 text-primary" /> 
@@ -261,11 +285,13 @@ export function LearningRoadmap() {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-semibold mb-2">Key Takeaways</h4>
+                  <h4 className="text-lg font-semibold mb-2 flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500" /> Key Takeaways
+                  </h4>
                   <ul className="space-y-2">
                     {selectedModule.content.keyTakeaways.map((takeaway, idx) => (
                       <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-2" />
                         <span className="text-muted-foreground">{takeaway}</span>
                       </li>
                     ))}
@@ -284,6 +310,37 @@ export function LearningRoadmap() {
                     </div>
                   </div>
                 )}
+
+                {/* Interview Deep Dive Section */}
+                <div className="mt-8 border rounded-xl overflow-hidden shadow-sm">
+                  <div className="bg-slate-900 px-5 py-4 flex items-center gap-3">
+                    <BrainCircuit className="w-6 h-6 text-primary" />
+                    <h4 className="text-lg font-bold text-white">Interview Deep Dive</h4>
+                  </div>
+                  <div className="p-5 bg-slate-50 dark:bg-slate-950 space-y-6">
+                    <div>
+                      <h5 className="font-semibold flex items-center gap-2 mb-2 text-primary">
+                        <Target className="w-4 h-4" /> Under the Hood
+                      </h5>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedModule.content.interviewDeepDive.underTheHood}
+                      </p>
+                    </div>
+                    
+                    <div className="bg-white dark:bg-slate-900 border rounded-lg p-4">
+                      <h5 className="font-semibold flex items-center gap-2 mb-3">
+                        <MessageSquare className="w-4 h-4 text-amber-500" /> Common Interview Question
+                      </h5>
+                      <p className="text-sm font-medium italic mb-4 pb-4 border-b">
+                        "{selectedModule.content.interviewDeepDive.interviewQuestion}"
+                      </p>
+                      <h5 className="text-xs font-bold text-success uppercase tracking-wider mb-2">The Senior Answer</h5>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {selectedModule.content.interviewDeepDive.seniorAnswer}
+                      </p>
+                    </div>
+                  </div>
+                </div>
 
                 <div className="pt-6 border-t mt-8 flex flex-col sm:flex-row gap-3">
                   <Button className="w-full sm:w-auto" onClick={() => setSelectedModule(null)}>
