@@ -9,10 +9,12 @@ import { InterviewQuestions } from "@/components/sections/InterviewQuestions"
 import { RealProjectWalkthrough } from "@/components/sections/RealProjectWalkthrough"
 import { IntegrationChecklist } from "@/components/sections/IntegrationChecklist"
 import { FinalInterviewPrep } from "@/components/sections/FinalInterviewPrep"
+import { ThemeProvider } from "@/components/theme-provider"
 
 function App() {
   return (
-    <div className="min-h-screen flex flex-col font-sans">
+    <ThemeProvider defaultTheme="system" storageKey="asp-net-theme">
+      <div className="min-h-screen flex flex-col font-sans">
       <Navbar />
       <main className="flex-1">
         <HeroSection />
@@ -26,7 +28,8 @@ function App() {
         <FinalInterviewPrep />
       </main>
       <Footer />
-    </div>
+      </div>
+    </ThemeProvider>
   )
 }
 

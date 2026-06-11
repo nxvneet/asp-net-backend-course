@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Search, Code2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 export function Navbar() {
   const [activeSection, setActiveSection] = useState("")
@@ -71,6 +72,7 @@ export function Navbar() {
               />
             </div>
           </div>
+          <ThemeToggle />
           <Button className="rounded-xl" onClick={() => scrollToSection("learning-path")}>
             Start Learning
           </Button>
