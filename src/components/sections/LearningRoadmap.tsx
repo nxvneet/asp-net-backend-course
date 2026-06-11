@@ -18,12 +18,12 @@ import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 
 type ModuleStatus = "completed" | "in-progress" | "locked"
 type ModuleLevel = "Beginner" | "Intermediate" | "Advanced" | "All Levels"
@@ -245,11 +245,11 @@ export function LearningRoadmap() {
         </div>
       </div>
 
-      <Sheet open={!!selectedModule} onOpenChange={(open) => !open && setSelectedModule(null)}>
-        <SheetContent side="bottom" className="w-full max-w-none sm:max-w-none h-[100dvh] overflow-y-auto p-0">
+      <Dialog open={!!selectedModule} onOpenChange={(open) => !open && setSelectedModule(null)}>
+        <DialogContent className="max-w-none w-screen h-[100dvh] max-h-[100dvh] m-0 p-0 sm:rounded-none border-none overflow-y-auto block">
           {selectedModule && (
             <div className="max-w-4xl mx-auto p-6 md:p-12 md:py-16 w-full">
-              <SheetHeader className="mb-8 mt-4 md:mt-0">
+              <DialogHeader className="mb-8 mt-4 md:mt-0">
                 <div className="flex items-center gap-2 mb-2">
                   <Badge variant={selectedModule.status === "completed" ? "default" : selectedModule.status === "in-progress" ? "secondary" : "outline"}
                       className={selectedModule.status === "completed" ? "bg-success hover:bg-success/90" : ""}
@@ -258,11 +258,11 @@ export function LearningRoadmap() {
                   </Badge>
                   <Badge variant="outline">{selectedModule.level}</Badge>
                 </div>
-                <SheetTitle className="text-2xl">{selectedModule.title}</SheetTitle>
-                <SheetDescription className="text-base">
+                <DialogTitle className="text-2xl">{selectedModule.title}</DialogTitle>
+                <DialogDescription className="text-base">
                   {selectedModule.description}
-                </SheetDescription>
-              </SheetHeader>
+                </DialogDescription>
+              </DialogHeader>
 
               <div className="space-y-8 pb-10">
                 <div className="flex flex-wrap gap-3 mb-2">
@@ -353,8 +353,8 @@ export function LearningRoadmap() {
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </DialogContent>
+      </Dialog>
     </section>
   )
 }
